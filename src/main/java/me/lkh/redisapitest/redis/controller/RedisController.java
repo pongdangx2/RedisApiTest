@@ -3,7 +3,6 @@ package me.lkh.redisapitest.redis.controller;
 import me.lkh.redisapitest.redis.service.RedisService;
 import me.lkh.redisapitest.redis.vo.ResponseCode;
 import me.lkh.redisapitest.util.RedisUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -12,11 +11,14 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/lkh")
+@RequestMapping("/redis")
 public class RedisController {
 
-    @Autowired
-    private RedisService redisService;
+    private final RedisService redisService;
+
+    public RedisController(RedisService redisService) {
+        this.redisService = redisService;
+    }
 
     /**
      * string 추가

@@ -1,12 +1,21 @@
 package me.lkh.redisapitest.redis.controller;
 
 import me.lkh.redisapitest.redis.service.RedisService;
+import me.lkh.redisapitest.redis.vo.list.ListRequestVO;
+import me.lkh.redisapitest.redis.vo.list.ListResponseVO;
+import me.lkh.redisapitest.redis.vo.map.MapRequestVO;
+import me.lkh.redisapitest.redis.vo.map.MapResponseVO;
+import me.lkh.redisapitest.redis.vo.set.SetRequestVO;
+import me.lkh.redisapitest.redis.vo.set.SetResponseVO;
+import me.lkh.redisapitest.redis.vo.sortedset.SortedSetRequestVO;
+import me.lkh.redisapitest.redis.vo.sortedset.SortedSetResponseVO;
+import me.lkh.redisapitest.redis.vo.string.StringRequestVO;
+import me.lkh.redisapitest.redis.vo.string.StringResponseVO;
 import me.lkh.redisapitest.redis.vo.ResponseCode;
 import me.lkh.redisapitest.util.RedisUtil;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,22 +35,22 @@ public class RedisController {
      * @return
      */
     @PostMapping("/string")
-    public Map<String, Object> setString(@RequestBody Map<String, Object> requestBody){
+    public StringResponseVO setString(@RequestBody StringRequestVO requestBody){
 
-        Map<String, Object> result = new HashMap<>();
+        StringResponseVO result = new StringResponseVO();
         Map<String, Object> infoMap;
 
-        if(!requestBody.containsKey("key") || !requestBody.containsKey("value")) {
+        if(requestBody.getKey() == null || requestBody.getValue() == null) {
             infoMap = RedisUtil.getInfoMap(ResponseCode.INVALID_PARAMETER, "필수 파라미터 누락");
         } else{
-            String key = requestBody.get("key").toString();
-            String value = requestBody.get("value").toString();
+            String key = requestBody.getKey();
+            String value = requestBody.getValue();
             redisService.setStringData(key, value);
 
             infoMap = RedisUtil.getInfoMap(ResponseCode.SUCCESS);
         }
 
-        result.put("Info", infoMap);
+        result.setInfoMap(infoMap);
 
         return result;
     }
@@ -52,22 +61,19 @@ public class RedisController {
      * @return 값
      */
     @GetMapping("/string/{key}")
-    public Map<String, Object> getString(@PathVariable("key") String key){
+    public StringResponseVO getString(@PathVariable("key") String key){
 
-        Map<String, Object> result = new HashMap<>();
+        StringResponseVO result = new StringResponseVO();
         Map<String, Object> infoMap = RedisUtil.getInfoMap(ResponseCode.SUCCESS);
-        Map<String, Object> dataMap = new HashMap<>();
 
         try{
-            dataMap.put("data", redisService.getStringData(key));
-            dataMap.put("key", key);
+            result.setStringData(redisService.getStringData(key));
         } catch(Exception e){
             e.printStackTrace();
             infoMap = RedisUtil.getInfoMap(ResponseCode.FAILED);
         }
 
-        result.put("Info", infoMap);
-        result.put("Data", dataMap);
+        result.setInfoMap(infoMap);
         return result;
     }
 
@@ -77,18 +83,19 @@ public class RedisController {
      * @return
      */
     @PostMapping("/list")
-    public Map<String, Object> setList(@RequestBody Map<String, Object> requestBody){
+    public ListResponseVO setList(@RequestBody ListRequestVO requestBody){
 
-        Map<String, Object> result = new HashMap<>();
+        ListResponseVO result = new ListResponseVO();
         Map<String, Object> infoMap;
 
 
-        if(!requestBody.containsKey("key") || !requestBody.containsKey("value")) {
+        if(requestBody.getKey() == null || requestBody.getValue() == null) {
             infoMap = RedisUtil.getInfoMap(ResponseCode.INVALID_PARAMETER, "필수 파라미터 누락");
         } else{
             try{
-                String key = requestBody.get("key").toString();
-                List<String> value = (List<String>) requestBody.get("value");
+                String key = requestBody.getKey();
+                List<String> value = requestBody.getValue();
+                System.out.println(value);
 
                 redisService.setListData(key, value);
                 infoMap = RedisUtil.getInfoMap(ResponseCode.SUCCESS);
@@ -99,7 +106,7 @@ public class RedisController {
             }
         }
 
-        result.put("Info", infoMap);
+        result.setInfoMap(infoMap);
 
         return result;
     }
@@ -113,15 +120,14 @@ public class RedisController {
      * @return
      */
     @GetMapping("/list/{key}")
-    public Map<String, Object> getList(@PathVariable("key") String key,
+    public ListResponseVO getList(@PathVariable("key") String key,
                                        @RequestParam(required = false) Integer index,
                                        @RequestParam(required = false) Integer startIndex,
                                        @RequestParam(required = false) Integer lastIndex){
 
-        Map<String, Object> result = new HashMap<>();
+        ListResponseVO result = new ListResponseVO();
         Map<String, Object> infoMap = RedisUtil.getInfoMap(ResponseCode.SUCCESS);
         List<Object> dataList = new ArrayList<>();
-
 
         try{
             if(startIndex == null || lastIndex == null){
@@ -135,8 +141,9 @@ public class RedisController {
             infoMap = RedisUtil.getInfoMap(ResponseCode.FAILED);
         }
 
-        result.put("Info", infoMap);
-        result.put("Data", dataList);
+        result.setDataList(dataList);
+        result.setInfoMap(infoMap);
+
         return result;
     }
 
@@ -146,22 +153,22 @@ public class RedisController {
      * @return
      */
     @PostMapping("/set")
-    public Map<String, Object> setSet(@RequestBody Map<String, Object> requestBody){
+    public SetResponseVO setSet(@RequestBody SetRequestVO requestBody){
 
-        Map<String, Object> result = new HashMap<>();
+        SetResponseVO result = new SetResponseVO();
         Map<String, Object> infoMap;
 
-        if(!requestBody.containsKey("key") || !requestBody.containsKey("value")) {
+        if(requestBody.getKey() == null || requestBody.getValue() == null) {
             infoMap = RedisUtil.getInfoMap(ResponseCode.INVALID_PARAMETER, "필수 파라미터 누락");
         } else{
-            String key = requestBody.get("key").toString();
-            String value = requestBody.get("value").toString();
+            String key = requestBody.getKey();
+            String value = requestBody.getValue();
             redisService.setSetData(key, value);
 
             infoMap = RedisUtil.getInfoMap(ResponseCode.SUCCESS);
         }
 
-        result.put("Info", infoMap);
+        result.setInfoMap(infoMap);
 
         return result;
     }
@@ -172,22 +179,19 @@ public class RedisController {
      * @return
      */
     @GetMapping("/set/{key}")
-    public Map<String, Object> getSet(@PathVariable("key") String key){
+    public SetResponseVO getSet(@PathVariable("key") String key){
 
-        Map<String, Object> result = new HashMap<>();
+        SetResponseVO result = new SetResponseVO();
         Map<String, Object> infoMap = RedisUtil.getInfoMap(ResponseCode.SUCCESS);
-        Map<String, Object> dataMap = new HashMap<>();
 
         try{
-            dataMap.put("data", redisService.getSetData(key));
-            dataMap.put("key", key);
+            result.setData(redisService.getSetData(key));
         } catch(Exception e){
             e.printStackTrace();
             infoMap = RedisUtil.getInfoMap(ResponseCode.FAILED);
         }
 
-        result.put("Info", infoMap);
-        result.put("Data", dataMap);
+        result.setInfoMap(infoMap);
         return result;
     }
 
@@ -197,23 +201,24 @@ public class RedisController {
      * @return
      */
     @PostMapping("/map")
-    public Map<String, Object> setMap(@RequestBody Map<String, Object> requestBody){
+    public MapResponseVO setMap(@RequestBody MapRequestVO requestBody){
 
-        Map<String, Object> result = new HashMap<>();
+        MapResponseVO result = new MapResponseVO();
         Map<String, Object> infoMap;
 
-        if(!requestBody.containsKey("key") || !requestBody.containsKey("mapKey") || !requestBody.containsKey("mapValue")) {
+        if(requestBody.getKey() == null || requestBody.getMapKey()  == null|| requestBody.getMapValue() == null) {
             infoMap = RedisUtil.getInfoMap(ResponseCode.INVALID_PARAMETER, "필수 파라미터 누락");
         } else{
-            String key = requestBody.get("key").toString();
-            String mapKey = requestBody.get("mapKey").toString();
-            String mapValue = requestBody.get("mapValue").toString();
+            String key = requestBody.getKey();
+            String mapKey = requestBody.getMapKey();
+            String mapValue = requestBody.getMapValue();
 
             redisService.setMapData(key, mapKey, mapValue);
 
             infoMap = RedisUtil.getInfoMap(ResponseCode.SUCCESS);
         }
-        result.put("Info", infoMap);
+        result.setInfoMap(infoMap);
+
         return result;
     }
     /**
@@ -222,38 +227,35 @@ public class RedisController {
      * @return 값
      */
     @GetMapping("/map/{key}")
-    public Map<String, Object> getMap(@PathVariable("key") String key){
+    public MapResponseVO getMap(@PathVariable("key") String key){
 
-        Map<String, Object> result = new HashMap<>();
+        MapResponseVO result = new MapResponseVO();
         Map<String, Object> infoMap = RedisUtil.getInfoMap(ResponseCode.SUCCESS);
-        Map<String, Object> dataMap = new HashMap<>();
 
         try{
-            dataMap.put("data", redisService.getMapData(key));
-            dataMap.put("key", key);
+            result.setData(redisService.getMapData(key));
         } catch(Exception e){
             e.printStackTrace();
             infoMap = RedisUtil.getInfoMap(ResponseCode.FAILED);
         }
 
-        result.put("Info", infoMap);
-        result.put("Data", dataMap);
+        result.setInfoMap(infoMap);
         return result;
     }
 
     @PostMapping("/sortedSet")
-    public Map<String, Object> setSortedSet(@RequestBody Map<String, Object> requestBody){
+    public SortedSetResponseVO setSortedSet(@RequestBody SortedSetRequestVO requestBody){
 
-        Map<String, Object> result = new HashMap<>();
+        SortedSetResponseVO result = new SortedSetResponseVO();
         Map<String, Object> infoMap;
 
-        if(!requestBody.containsKey("key") || !requestBody.containsKey("value") || !requestBody.containsKey("score")) {
+        if(requestBody.getKey() == null || requestBody.getValue() == null || requestBody.getScore() == null) {
             infoMap = RedisUtil.getInfoMap(ResponseCode.INVALID_PARAMETER, "필수 파라미터 누락");
         } else{
             try{
-                String key = requestBody.get("key").toString();
-                String value = requestBody.get("value").toString();
-                int score = Integer.parseInt(requestBody.get("score").toString());
+                String key = requestBody.getKey();
+                String value = requestBody.getValue();
+                int score = requestBody.getScore();
 
                 redisService.setSortedSetData(key, value, score);
 
@@ -264,7 +266,7 @@ public class RedisController {
             }
         }
 
-        result.put("Info", infoMap);
+        result.setInfoMap(infoMap);
 
         return result;
     }
@@ -276,26 +278,23 @@ public class RedisController {
      * @return
      */
     @GetMapping("/sortedSet/{key}")
-    public Map<String, Object> getsortedSet(@PathVariable("key") String key,
+    public SortedSetResponseVO getsortedSet(@PathVariable("key") String key,
                                             @RequestParam(required = false) String isDesc){
 
-        Map<String, Object> result = new HashMap<>();
+        SortedSetResponseVO result = new SortedSetResponseVO();
         Map<String, Object> infoMap = RedisUtil.getInfoMap(ResponseCode.SUCCESS);
-        Map<String, Object> dataMap = new HashMap<>();
         boolean isDescBoolean = false;
         try{
             if("Y".equals(isDesc)){
                 isDescBoolean = true;
             }
-            dataMap.put("data", redisService.getSortedSetData(key, isDescBoolean));
-            dataMap.put("key", key);
+            result.setData(redisService.getSortedSetData(key, isDescBoolean));
         } catch(Exception e){
             e.printStackTrace();
             infoMap = RedisUtil.getInfoMap(ResponseCode.FAILED);
         }
 
-        result.put("Info", infoMap);
-        result.put("Data", dataMap);
+        result.setInfoMap(infoMap);
         return result;
     }
 }

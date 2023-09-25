@@ -1,4 +1,4 @@
-# RedisApiTest
+# redis-api-sample
 
 * Redis에 데이터를 삽입/조회하는 API서비스입니다.
 
